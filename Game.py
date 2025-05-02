@@ -114,8 +114,11 @@ class Game:
 		elif flush:
 			hash_start = '5'
 		
-		for rank in ranks:
-			hash_start += self.rank_to_string[rank[0]]
+		if straight and ranks[0][0] == 14 and ranks[1][0] == 5:
+			hash_start += '5432E'
+		else:
+			for rank in ranks:
+				hash_start += self.rank_to_string[rank[0]]
 
 		return (hash_start, five)
 
