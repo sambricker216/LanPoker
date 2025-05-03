@@ -26,6 +26,19 @@ class Game:
 		2: '2'
 	}
 
+	hand_to_string ={
+		'0': 'High Card',
+		'1': 'Pair',
+		'2': 'Two Pair',
+		'3': 'Three of a Kind',
+		'4': 'Straight',
+		'5': 'Flush',
+		'6': 'Full House',
+		'7': 'Four of a Kind',
+		'8': 'Straight Flush',
+		'9': 'Royal Flush'
+	}
+
 	def eval_five(self, five):
 		ranks = defaultdict(int)
 		suits = defaultdict(int)
@@ -39,17 +52,6 @@ class Game:
 		ranks = sorted([tuple(x) for x in ranks.items()], key=lambda x: x[0], reverse=True)
 
 		hash_start = '0'
-
-		#0 Highcard 
-		#1 Pair
-		#2 Two Pair
-		#3 Three of a kind
-		#4 Straight
-		#5 Flush
-		#6 Full house
-		#7 Four of a kind
-		#8 Straight flush
-		#9 Royal flush
 
 		four_of_a_kind = [x for x in ranks if x[1] == 4]
 		if four_of_a_kind:
@@ -129,8 +131,14 @@ class Game:
 		hashes = []
 		for five in fives:
 			hashes.append(self.eval_five(five))
-		hashes.sort(key=lambda x: x[0], reverse=True)
+		hashes.sort(key=lambda x: int('0x' + x[0], 16), reverse=True)
 		return hashes[0]
+	
+	def winner_hand(self, player_hands):
+		player_hands.sort(key=lambda x: int('0x' + x[1][0], 16), reverse=True)
+		winning_hash = player_hands[0][1][0]
+		winners = [x[0] for x in player_hands if x[1][0] == winning_hash]
+		return (winners, self.hand_to_string[winning_hash[0]], player_hands[0][1][1])
 
 	def generate_hand(self, num_players):
 		if num_players == 0:
@@ -155,5 +163,11 @@ class Game:
 		return self.hand
 
 game = Game()
-# print(game.generate_hand(3))
-# game.get_best_hand(0)
+hand = game.generate_hand(3)
+print(hand)
+player_hands = []
+for i in range(3):
+	player_hand = game.get_best_hand(i)
+	print(i, player_hand)
+	player_hands.append((i, player_hand))
+print(game.winner_hand(player_hands))

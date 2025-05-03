@@ -64,5 +64,40 @@ class GameHashTest(unittest.TestCase):
         hashed = self.game.eval_five(five)
         self.assertEqual(hashed, ('5CA864', five))
 
+    def test_full_house0(self):
+        five = ('AH', 'AD', '2C', 'AS', '2D')
+        hashed = self.game.eval_five(five)
+        self.assertEqual(hashed, ('6E2000', five))
+    
+    def test_full_house1(self):
+        five = ('3D', '3S', '7C', '7S', '7D')
+        hashed = self.game.eval_five(five)
+        self.assertEqual(hashed, ('673000', five))
+    
+    def test_four0(self):
+        five = ('3D', '3S', '3C', '7S', '3H')
+        hashed = self.game.eval_five(five)
+        self.assertEqual(hashed, ('737000', five))
+    
+    def test_four1(self):
+        five = ('2D', '3S', '2C', '2S', '2H')
+        hashed = self.game.eval_five(five)
+        self.assertEqual(hashed, ('723000', five))
+    
+    def test_sf0(self):
+        five = ('3D', '2D', 'AD', '5D', '4D')
+        hashed = self.game.eval_five(five)
+        self.assertEqual(hashed, ('85432E', five))
+    
+    def test_sf1(self):
+        five = ('7S', '8S', '9S', '10S', 'JS')
+        hashed = self.game.eval_five(five)
+        self.assertEqual(hashed, ('8BA987', five))
+    
+    def test_royal(self):
+        five = ('AS', 'KS', 'QS', 'JS', '10S')
+        hashed = self.game.eval_five(five)
+        self.assertEqual(hashed, ('9EDCBA', five))
+
 if __name__ == '__main__':  
     unittest.main()
