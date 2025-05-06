@@ -6,6 +6,10 @@ print(json.dumps(game.status(), indent=2))
 game.deal()
 print(json.dumps(game.status(), indent=2))
 
+for i in range(3):
+    game.hole()
+    print(game.status())
+
 best_hands = []
 for i in range(3):
     best_hands.append(game.get_best_hand(i))

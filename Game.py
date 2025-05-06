@@ -5,9 +5,16 @@ from Player import Player
 
 class Game:
 	def __init__(self, num_players):
+		if num_players < 2:
+			raise Exception('Must have at least two players')
+
 		self.players = {}
 		for i in range(num_players):
 			self.players[i] = Player(i)
+		
+		self.hole_cards = []
+		self.turn = None
+		self.under_the_gun = None
 		
 		self.poker_deck = [
 		'2H', '3H', '4H', '5H', '6H', '7H', '8H', '9H', '10H', 'JH', 'QH', 'KH', 'AH',
@@ -131,7 +138,7 @@ class Game:
 		return (hash_start, five)
 
 	def get_best_hand(self, player_id):
-		player_hand = self.players[player_id].get_hand() + self.play_deck[0:5]
+		player_hand = self.players[player_id].get_hand() + self.hole_cards
 		fives = combinations(player_hand, 5)
 
 		hashes = []
@@ -150,6 +157,13 @@ class Game:
 		if len(self.players) == 0:
 			return
 		
+		if not self.turn:
+			self.turn = 0
+			self.under_the_gun = 0
+		else:
+			self.turn = (self.turn + 1) % len(self.players)
+			self.under_the_gun = (self.under_the_gun + 1) % len(self.players)
+		
 		copy_hand = self.poker_deck.copy()
 		random.shuffle(copy_hand)
 
@@ -160,11 +174,21 @@ class Game:
 			self.players[player].set_hand(player_hand)
 	
 		self.play_deck = copy_hand
+		self.hole_cards = []
 
 		return self.play_deck
 
 	def status(self):
 		stats = []
+		if self.hole_cards:
+			stats.append(self.hole_cards)
 		for player in self.players.values():
 			stats.append(player.status())
 		return stats
+	
+	def hole(self):
+		if not self.hole_cards:
+			for i in range(3):
+				self.hole_cards.append(self.play_deck.pop())
+		else:
+			self.hole_cards.append(self.play_deck.pop())
