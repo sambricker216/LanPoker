@@ -13,8 +13,9 @@ class Game:
 			self.players[i] = Player(i)
 		
 		self.hole_cards = []
-		self.turn = None
 		self.under_the_gun = None
+		self.pot = 0
+		self.active_players = {}
 		
 		self.poker_deck = [
 		'2H', '3H', '4H', '5H', '6H', '7H', '8H', '9H', '10H', 'JH', 'QH', 'KH', 'AH',
@@ -157,13 +158,11 @@ class Game:
 		if len(self.players) == 0:
 			return
 		
-		if not self.turn:
-			self.turn = 0
+		if not self.under_the_gun:
 			self.under_the_gun = 0
 		else:
-			self.turn = (self.turn + 1) % len(self.players)
 			self.under_the_gun = (self.under_the_gun + 1) % len(self.players)
-		
+			
 		copy_hand = self.poker_deck.copy()
 		random.shuffle(copy_hand)
 
@@ -175,20 +174,54 @@ class Game:
 	
 		self.play_deck = copy_hand
 		self.hole_cards = []
+		self.active_players = self.players.copy()
 
 		return self.play_deck
 
 	def status(self):
-		stats = []
+		stats = {}
 		if self.hole_cards:
-			stats.append(self.hole_cards)
-		for player in self.players.values():
-			stats.append(player.status())
+			stats['hole_cards'] = self.hole_cards
+		if self.pot:
+			stats['pot'] = self.pot
+		if self.under_the_gun:
+			stats['under_the_gun'] = self.under_the_gun
+		if self.players:
+			stats['players'] = []
+			for player in self.players.values():
+				stats['players'].append(player.status())
 		return stats
-	
+		
 	def hole(self):
 		if not self.hole_cards:
 			for i in range(3):
 				self.hole_cards.append(self.play_deck.pop())
 		else:
 			self.hole_cards.append(self.play_deck.pop())
+	
+	def bet(self, player_id, ships):
+		pass
+
+	def all_in(self, player_id):
+		pass
+
+	def fold(self, player_id):
+		pass
+
+	def winnings(self, winners):
+		pass
+
+	def round(self):
+		self.deal()
+		last_change = -1
+		turn = self.under_the_gun
+
+		while last_change == -1 or turn != last_change:
+			if last_change == -1:
+				last_change = turn
+
+			choice = input(f'{self.players[turn].status()}\n What would you like to do?')		
+
+			print(choice)
+			turn = (turn + 1) % len(self.players)	
+			
