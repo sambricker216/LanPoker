@@ -157,11 +157,6 @@ class Game:
 	def deal(self):
 		if len(self.players) == 0:
 			return
-		
-		if not self.under_the_gun:
-			self.under_the_gun = 0
-		else:
-			self.under_the_gun = (self.under_the_gun + 1) % len(self.players)
 			
 		copy_hand = self.poker_deck.copy()
 		random.shuffle(copy_hand)
@@ -199,7 +194,7 @@ class Game:
 		else:
 			self.hole_cards.append(self.play_deck.pop())
 	
-	def bet(self, player_id, ships):
+	def bet(self, player_id, chips):
 		pass
 
 	def all_in(self, player_id):
@@ -212,16 +207,45 @@ class Game:
 		pass
 
 	def round(self):
+		active_players = list(self.players.keys())
+		pot = 0
+		
+		try:
+			index = active_players.index(self.under_the_gun)
+			self.under_the_gun = active_players[(index + 1) % len(active_players)]
+		except:
+			self.under_the_gun = active_players[0]
+
 		self.deal()
 		last_change = -1
 		turn = self.under_the_gun
+		valid_play = False
 
-		while last_change == -1 or turn != last_change:
+		while last_change == -1 or turn != last_change or not valid_play:
 			if last_change == -1:
 				last_change = turn
 
-			choice = input(f'{self.players[turn].status()}\n What would you like to do?')		
-
+			choice = input(f'{self.players[turn].status()}\n What would you like to do?')
 			print(choice)
-			turn = (turn + 1) % len(self.players)	
-			
+
+			if choice.lower() == 'bet':
+				wager = input('Enter amount')
+				
+				try:
+					wager = int(wager)
+				except:
+					print('Invalid wager')
+					continue
+				
+				wager = self.players[turn].bet(wager)
+
+				if wager == -1:
+					print('Invalid wager')
+					continue
+
+				valid_play = True
+				last_change = turn
+				pot += wager
+
+			if valid_play:	
+				turn = (turn + 1) % len(self.players)				
