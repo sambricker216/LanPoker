@@ -3,11 +3,15 @@ from itertools import combinations
 from collections import defaultdict
 from Player import Player
 
+#Main Game class
 class Game:
+	#Initialization
 	def __init__(self, num_players):
+		#Initial Number of players
 		if num_players < 2:
 			raise Exception('Must have at least two players')
 
+		#Declaration of class fields/constants
 		self.players = {}
 		for i in range(num_players):
 			self.players[i] = Player(i)
@@ -53,10 +57,12 @@ class Game:
 			'9': 'Royal Flush'
 		}
 
+	#Evaluates five cards to assess value
 	def eval_five(self, five):
 		ranks = defaultdict(int)
 		suits = defaultdict(int)
 
+		#Counts ranks and suits of provided cards
 		for card in five:
 			suits[card[-1:]] += 1
 			rank = card[:-1]
@@ -65,6 +71,7 @@ class Game:
 		
 		ranks = sorted([tuple(x) for x in ranks.items()], key=lambda x: x[0], reverse=True)
 
+		#Hash value
 		hash_start = '0'
 
 		four_of_a_kind = [x for x in ranks if x[1] == 4]
@@ -138,6 +145,7 @@ class Game:
 
 		return (hash_start, five)
 
+	#Compares all hash values for an individual player
 	def get_best_hand(self, player_id):
 		player_hand = self.players[player_id].get_hand() + self.hole_cards
 		fives = combinations(player_hand, 5)
@@ -148,12 +156,14 @@ class Game:
 		hashes.sort(key=lambda x: int('0x' + x[0], 16), reverse=True)
 		return hashes[0]
 	
+	#Compares hash values of all players to determine winner
 	def winner_hand(self, player_hands):
 		player_hands.sort(key=lambda x: int('0x' + x[0], 16), reverse=True)
 		winning_hash = player_hands[0][0]
 		winners = [x[0] for x in player_hands if x[0] == winning_hash]
 		return (winners, self.hand_to_string[winning_hash[0]], player_hands[0][1])
 
+	#Shuffles deck and deals to players
 	def deal(self):
 		if len(self.players) == 0:
 			return
@@ -173,6 +183,7 @@ class Game:
 
 		return self.play_deck
 
+	#Output for testing
 	def status(self):
 		stats = {}
 		if self.hole_cards:
@@ -186,7 +197,8 @@ class Game:
 			for player in self.players.values():
 				stats['players'].append(player.status())
 		return stats
-		
+	
+	#Deals cards
 	def hole(self):
 		if not self.hole_cards:
 			for i in range(3):
@@ -206,31 +218,39 @@ class Game:
 	def winnings(self, winners):
 		pass
 
+	#Simulates round of gameplay
 	def round(self):
 		active_players = list(self.players.keys())
 		pot = 0
 		
+		#Cycles under the gun, try catch is for players joinging/leaving the game
 		try:
 			index = active_players.index(self.under_the_gun)
 			self.under_the_gun = active_players[(index + 1) % len(active_players)]
 		except:
 			self.under_the_gun = active_players[0]
 
+		#Deals cards, establshes turn order
 		self.deal()
 		last_change = -1
 		turn = self.under_the_gun
 		valid_play = False
 
+		#Decision loop
 		while last_change == -1 or turn != last_change or not valid_play:
 			if last_change == -1:
 				last_change = turn
 
+			#Players decision
 			choice = input(f'{self.players[turn].status()}\n What would you like to do?')
 			print(choice)
 
+			#Bet condition
 			if choice.lower() == 'bet':
+				#User's wager
 				wager = input('Enter amount')
 				
+				#Validation
 				try:
 					wager = int(wager)
 				except:
@@ -246,6 +266,7 @@ class Game:
 				valid_play = True
 				last_change = turn
 				pot += wager
-
+			
+			#Cycles to next player
 			if valid_play:	
 				turn = (turn + 1) % len(self.players)				

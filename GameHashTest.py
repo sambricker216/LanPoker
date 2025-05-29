@@ -1,5 +1,6 @@
 import unittest
 from Game import Game
+#Testing for hash values
 
 class GameHashTest(unittest.TestCase):
     game = Game()
